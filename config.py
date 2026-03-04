@@ -11,3 +11,6 @@ AGENT_CONTROL_BIN = "/var/ossec/bin/agent_control"
 
 # --- THRESHOLD ---
 WAIT_HOURS = 6
+
+BOT_LOG_FILE = "/var/ossec/logs/bot_agent_monit.log"
+

@@ -12,6 +12,7 @@ from config import STATE_FILE, WAIT_HOURS
 from utils import (
     get_all_agents,
     load_state,
+    logger,
     process_logs,
     save_state,
     send_telegram_alert,
@@ -19,8 +20,12 @@ from utils import (
 
 
 def main():
+    logger.info("=" * 50)
+    logger.info("Bot agent monitoring MULAI dijalankan")
+
     agents = get_all_agents()
     if not agents:
+        logger.warning("Tidak ada agent ditemukan, skip.")
         return
 
     # Muat state dari file (atau state kosong jika belum ada)
@@ -44,9 +49,11 @@ def main():
             # MASUKAN KE LIST: Catat jam berapa mulai putus (jika belum dicatat)
             if agent_id not in state["disconnected_since"]:
                 state["disconnected_since"][agent_id] = current_time
+                logger.info(f"[PENDING +] {data['name']} ({agent_id}) masuk list disconnected")
         else:
             # HAPUS DARI LIST: Jika sebelum 6 jam dia kembali Active, hapus dari daftar!
             if agent_id in state["disconnected_since"]:
+                logger.info(f"[PENDING -] {data['name']} ({agent_id}) kembali Active, dihapus dari list")
                 del state["disconnected_since"][agent_id]
 
     # 2. UPDATE PENDING LIST LOGS
@@ -115,8 +122,13 @@ def main():
 
     # Kirim ke Telegram 
     if alert_messages:
+        logger.info(f"ALERT DIKIRIM: {len(alert_messages)} issue ditemukan")
         full_message = "\n\n".join(alert_messages)
         send_telegram_alert(full_message)
+    else:
+        logger.info("Tidak ada alert — semua agent sehat atau masih dalam masa tunggu")
+
+    logger.info("Bot agent monitoring SELESAI")
 
 if __name__ == "__main__":
     main()

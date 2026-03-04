@@ -20,6 +20,10 @@ import time
 import unittest
 from unittest.mock import patch, MagicMock, mock_open, call
 
+# Patch BOT_LOG_FILE sebelum import utils agar FileHandler tidak error di Windows
+import config
+config.BOT_LOG_FILE = os.path.join(os.path.dirname(__file__), "test_bot.log")
+
 # Import modul yang akan ditest
 import bot_agent_monit
 import utils
